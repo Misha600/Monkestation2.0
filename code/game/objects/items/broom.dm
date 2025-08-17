@@ -51,23 +51,33 @@
 	. = ..()
 	if(!proximity)
 		return
-	sweep(user, A)
+	sweep(user, A, FALSE)
 	return . | AFTERATTACK_PROCESSED_ITEM
 
+/obj/item/pushbroom/afterattack_secondary(atom/A, mob/user, proximity)
+	. = ..()
+	if(!proximity)
+		return
+	sweep(user, A, TRUE)
+	return . | AFTERATTACK_PROCESSED_ITEM
 /**
  * Attempts to push up to BROOM_PUSH_LIMIT atoms from a given location the user's faced direction
  *
  * Arguments:
  * * user - The user of the pushbroom
  * * A - The atom which is located at the location to push atoms from
+ * * sweepback - whether we should sweep backwards towards us, true or false
  */
-/obj/item/pushbroom/proc/sweep(mob/user, atom/A)
+/obj/item/pushbroom/proc/sweep(mob/user, atom/A, sweepback)
 	SIGNAL_HANDLER
 
 	var/turf/current_item_loc = isturf(A) ? A : A.loc
 	if (!isturf(current_item_loc))
 		return
-	var/turf/new_item_loc = get_step(current_item_loc, user.dir)
+	if (sweepback == FALSE)
+		var/turf/new_item_loc = get_step(current_item_loc, user.dir)
+	if (sweepback == TRUE)
+		var/turf/new_item_loc = user.loc
 	var/obj/machinery/disposal/bin/target_bin = locate(/obj/machinery/disposal/bin) in new_item_loc.contents
 	var/i = 1
 	for (var/obj/item/garbage in current_item_loc.contents)
